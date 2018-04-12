@@ -1,6 +1,6 @@
 *.pem
 *.pub
-*minion.d
+*minion.d*
 *keys*
 *pki
 .vagrant
