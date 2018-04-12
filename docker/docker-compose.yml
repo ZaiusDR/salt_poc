@@ -1,0 +1,63 @@
+version: '3.4'
+
+services:
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.2.1
+    container_name: elasticsearch
+    hostname: elasticsearch
+    ports:
+      - 9200:9200
+      - 9300:9300
+    environment:
+      - "discovery.type=single-node"
+      - "ES_JAVA_OPTS=-Xms1000m -Xmx1000m"
+    volumes:
+      - "../elasticsearch_vol:/usr/share/elasticsearch/data"
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:6.2.1
+    container_name: kibana
+    hostname: kibana
+    ports:
+      - 5601:5601
+    links:
+      - elasticsearch
+
+  salt-master:
+    build: ./salt-master/
+    image: salt_master
+    container_name: salt_master
+    hostname: salt
+    ports:
+      - 4505:4505
+      - 4506:4506
+    volumes:
+      - "./salt-master/conf:/etc/salt"
+      - "../saltstack/:/srv"
+
+  salt-minion1:
+    build: ./salt-minion/
+    image: salt_minion1
+    container_name: salt_minion1
+    hostname: minion1
+    depends_on:
+      - salt-master
+    volumes:
+      - "./salt-minion/conf1:/etc/salt"
+    links:
+      - salt-master:salt
+      - elasticsearch
+
+  salt-minion2:
+    build: ./salt-minion/
+    image: salt_minion2
+    container_name: salt_minion2
+    hostname: minion2
+    depends_on:
+      - salt-master
+    volumes:
+      - "./salt-minion/conf2:/etc/salt"
+    links:
+      - salt-master:salt
+      - elasticsearch

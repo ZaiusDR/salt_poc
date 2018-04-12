@@ -1,0 +1,7 @@
+*.pem
+*.pub
+*minion.d
+*keys*
+*pki
+.vagrant
+elasticsearch_vol
